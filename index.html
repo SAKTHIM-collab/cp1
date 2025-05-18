@@ -1,75 +1,369 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Titan's Circuit</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberscape</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        :root {
+            --neon-green: #00ff00;
+            --dark-green: #003300;
+            --black: #000000;
+            --dark-gray: #1a1a1a;
+            --light-gray: #333333;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--black);
+            color: var(--neon-green);
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: 
+                linear-gradient(45deg, var(--dark-gray) 25%, transparent 25%),
+                linear-gradient(-45deg, var(--dark-gray) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, var(--dark-gray) 75%),
+                linear-gradient(-45deg, transparent 75%, var(--dark-gray) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        h1 {
+            font-size: 3em;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px var(--neon-green),
+                         0 0 20px var(--neon-green),
+                         0 0 30px var(--neon-green);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px var(--neon-green),
+                            0 0 20px var(--neon-green),
+                            0 0 30px var(--neon-green);
+            }
+            to {
+                text-shadow: 0 0 20px var(--neon-green),
+                            0 0 30px var(--neon-green),
+                            0 0 40px var(--neon-green),
+                            0 0 50px var(--neon-green);
+            }
+        }
+
+        #game-container {
+            position: relative;
+            margin: 20px 0;
+            box-shadow: 0 0 20px var(--neon-green);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #game-canvas {
+            border: 2px solid var(--neon-green);
+            background-color: var(--black);
+            display: block;
+        }
+
+        #game-ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--neon-green);
+        }
+
+        .health-bar {
+            width: 200px;
+            height: 20px;
+            background-color: var(--dark-gray);
+            border: 2px solid var(--neon-green);
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .health-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-green), #00ffaa);
+            transition: width 0.3s, background-color 0.3s;
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .counter {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin: 0 5px;
+            border: 1px solid var(--neon-green);
+            font-weight: bold;
+            text-shadow: 0 0 5px var(--neon-green);
+        }
+
+        #game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            border: 2px solid var(--neon-green);
+            box-shadow: 0 0 20px var(--neon-green);
+            font-size: 1.5em;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        #mode-selector {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background-color: var(--dark-gray);
+            color: var(--neon-green);
+            border: 2px solid var(--neon-green);
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background-color: var(--neon-green);
+            color: var(--black);
+            box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        button.active {
+            background-color: var(--neon-green);
+            color: var(--black);
+            box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        #marketplace {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            border: 2px solid var(--neon-green);
+            box-shadow: 0 0 20px var(--neon-green);
+            min-width: 250px;
+        }
+
+        #marketplace h3 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .marketplace-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            cursor: pointer;
+            border: 1px solid var(--neon-green);
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .marketplace-item:hover {
+            background-color: rgba(0, 255, 0, 0.1);
+            transform: translateX(-5px);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .marketplace-item img {
+            width: 30px;
+            height: 30px;
+            margin-right: 15px;
+            filter: drop-shadow(0 0 5px var(--neon-green));
+        }
+
+        .marketplace-item span {
+            color: var(--neon-green);
+            text-shadow: 0 0 5px var(--neon-green);
+        }
+
+        /* Add scanline effect */
+        #game-container::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 0, 0.03),
+                rgba(0, 255, 0, 0.03) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
-  <div id="game-wrapper">
-    <h1 id="title">Titan's Circuit</h1>
-
+    <h1>Cyberscape</h1>
+    
     <div id="mode-selector">
-      <button id="normalMode" class="active">Normal Mode</button>
-      <button id="hackerMode">Hacker Mode</button>
-      <button id="hackerPlusMode">Hacker++ Mode</button>
+        <button onclick="setGameMode('normal')" class="active">Normal Mode</button>
+        <button onclick="setGameMode('hacker')">Hacker Mode</button>
+        <button onclick="setGameMode('hacker++')">Hacker++ Mode</button>
     </div>
 
-    <div id="board"></div>
-
-    <div id="ui">
-      <div class="player-info">
-        <div class="player red">
-          <h3>Red Titan</h3>
-          <div class="score">Score: <span id="redScore">0</span></div>
-          <div class="titans">Titans: <span id="redTitans">0</span>/4</div>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        
+        <div id="game-ui">
+            <div class="health-bar">
+                <div id="system-health" class="health-bar-fill" style="width: 100%"></div>
+            </div>
+            
+            <div class="counter">
+                Keys: <span id="keys-count">0</span>
+            </div>
+            
+            <div class="counter">
+                Shards: <span id="shards-count">0</span>
+            </div>
+            
+            <div class="health-bar">
+                <div id="player-health" class="health-bar-fill" style="width: 100%"></div>
+            </div>
+            
+            <button id="pause-btn">Pause</button>
+            <button id="reset-btn">Reset</button>
         </div>
         
-        <div class="game-status">
-          <div id="currentPlayer">Red's Turn</div>
-          <div>Turn Timer: <span id="turnTimer">30</span>s</div>
-          <div>Game Timer: <span id="gameTimer">300</span>s</div>
-        </div>
+        <div id="game-message"></div>
         
-        <div class="player blue">
-          <h3>Blue Titan</h3>
-          <div class="score">Score: <span id="blueScore">0</span></div>
-          <div class="titans">Titans: <span id="blueTitans">0</span>/4</div>
+        <div id="marketplace">
+            <h3>Marketplace</h3>
+            <div class="marketplace-item" onclick="buyItem('health_pack')">
+                <img src="health_pack.png" alt="Health Pack">
+                <span>Health Pack (5 Shards)</span>
+            </div>
+            <div class="marketplace-item" onclick="buyItem('invisibility')">
+                <img src="invisibility.png" alt="Invisibility">
+                <span>Invisibility (10 Shards)</span>
+            </div>
+            <div class="marketplace-item" onclick="buyItem('speed_boost')">
+                <img src="speed_boost.png" alt="Speed Boost">
+                <span>Speed Boost (8 Shards)</span>
+            </div>
+            <div class="marketplace-item" onclick="buyItem('data_mine')">
+                <img src="data_mine.png" alt="Data Mine">
+                <span>Data Mine (15 Shards)</span>
+            </div>
+            <div class="marketplace-item" onclick="buyItem('teleport_hub')">
+                <img src="teleport_hub.png" alt="Teleport Hub">
+                <span>Teleport Hub (20 Shards)</span>
+            </div>
         </div>
-      </div>
     </div>
 
-    <div id="controls">
-      <div id="basic-controls">
-        <button id="pauseBtn">Pause</button>
-        <button id="resumeBtn">Resume</button>
-        <button id="resetBtn">Reset</button>
-      </div>
-      
-      <div id="hacker-controls" class="hidden">
-        <button id="undoBtn">Undo</button>
-        <button id="redoBtn">Redo</button>
-        <button id="soundBtn">Sound: ON</button>
-      </div>
-      
-      <div id="hacker-plus-controls" class="hidden">
-        <button id="powerupBtn">Use Power-Up</button>
-        <button id="replayBtn">Replay</button>
-        <button id="analysisBtn">Game Review</button>
-      </div>
-    </div>
+    <script src="game.js"></script>
+    <script>
+        // Marketplace functions
+        function toggleMarketplace() {
+            const marketplace = document.getElementById('marketplace');
+            marketplace.style.display = marketplace.style.display === 'none' ? 'block' : 'none';
+        }
 
-    <div id="move-history" class="hidden">
-      <h3>Move History</h3>
-      <div id="history-list"></div>
-    </div>
-  </div>
+        function buyItem(item) {
+            const costs = {
+                health_pack: 5,
+                invisibility: 10,
+                speed_boost: 8,
+                data_mine: 15,
+                teleport_hub: 20
+            };
 
-  <audio id="placeSound" src="place.wav" preload="auto"></audio>
-  <audio id="moveSound" src="move.wav" preload="auto"></audio>
-  <audio id="captureSound" src="capture.wav" preload="auto"></audio>
+            if (collectedShards >= costs[item]) {
+                collectedShards -= costs[item];
+                updateShardsCount();
 
-  <script src="script.js"></script>
+                switch(item) {
+                    case 'health_pack':
+                        playerHealth = Math.min(100, playerHealth + 30);
+                        updatePlayerHealth();
+                        break;
+                    case 'invisibility':
+                        isInvisible = true;
+                        if (invisibilityTimer) clearTimeout(invisibilityTimer);
+                        invisibilityTimer = setTimeout(() => {
+                            isInvisible = false;
+                        }, 5000);
+                        break;
+                    case 'speed_boost':
+                        const originalSpeed = player.speed;
+                        player.speed *= 1.5;
+                        setTimeout(() => {
+                            player.speed = originalSpeed;
+                        }, 5000);
+                        break;
+                    case 'data_mine':
+                        const pos = findWalkablePosition();
+                        dataMines.push(new DataMine(pos.x, pos.y));
+                        break;
+                    case 'teleport_hub':
+                        const hubPos = findWalkablePosition();
+                        const label = `HUB${teleportHubs.length + 1}`;
+                        teleportHubs.push(new TeleportHub(hubPos.x, hubPos.y, label));
+                        break;
+                }
+            }
+        }
+
+        // Add keyboard shortcut for marketplace
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'm') {
+                toggleMarketplace();
+            }
+        });
+
+        // Update active button state
+        document.querySelectorAll('#mode-selector button').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('#mode-selector button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+    </script>
 </body>
 </html>
