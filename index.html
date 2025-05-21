@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyberscape</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
 
         :root {
             --neon-green: #00ff00;
@@ -13,6 +13,13 @@
             --black: #000000;
             --dark-gray: #1a1a1a;
             --light-gray: #333333;
+            --accent-green: #00ffaa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
@@ -25,6 +32,9 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            max-width: 100vw;
+            overflow-x: hidden;
+            box-sizing: border-box;
             background-image: 
                 linear-gradient(45deg, var(--dark-gray) 25%, transparent 25%),
                 linear-gradient(-45deg, var(--dark-gray) 25%, transparent 25%),
@@ -32,10 +42,23 @@
                 linear-gradient(-45deg, transparent 75%, var(--dark-gray) 75%);
             background-size: 20px 20px;
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, var(--black) 100%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         h1 {
-            font-size: 3em;
+            font-size: clamp(2em, 5vw, 3.5em);
             text-transform: uppercase;
             letter-spacing: 0.2em;
             margin-bottom: 30px;
@@ -43,6 +66,28 @@
                          0 0 20px var(--neon-green),
                          0 0 30px var(--neon-green);
             animation: glow 2s ease-in-out infinite alternate;
+            position: relative;
+            padding: 20px;
+            text-align: center;
+            max-width: 100%;
+        }
+
+        h1::before, h1::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: var(--neon-green);
+            left: 0;
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        h1::before {
+            top: 0;
+        }
+
+        h1::after {
+            bottom: 0;
         }
 
         @keyframes glow {
@@ -61,16 +106,24 @@
 
         #game-container {
             position: relative;
-            margin: 20px 0;
-            box-shadow: 0 0 20px var(--neon-green);
+            margin: 20px auto;
+            box-shadow: 0 0 20px var(--neon-green),
+                       inset 0 0 20px var(--neon-green);
             border-radius: 10px;
             overflow: hidden;
+            padding: 3px;
+            background: linear-gradient(45deg, var(--neon-green), var(--accent-green));
+            max-width: 95vw;
+            max-height: 85vh;
         }
 
         #game-canvas {
             border: 2px solid var(--neon-green);
             background-color: var(--black);
             display: block;
+            border-radius: 8px;
+            max-width: 100%;
+            height: auto;
         }
 
         #game-ui {
@@ -81,10 +134,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            border-radius: 8px;
             border: 1px solid var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            backdrop-filter: blur(5px);
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .health-bar {
@@ -95,23 +152,68 @@
             position: relative;
             border-radius: 10px;
             overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.3);
         }
 
         .health-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--neon-green), #00ffaa);
+            background: linear-gradient(90deg, var(--neon-green), var(--accent-green));
             transition: width 0.3s, background-color 0.3s;
             box-shadow: 0 0 10px var(--neon-green);
+            position: relative;
+        }
+
+        .health-bar-fill::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.2) 50%, 
+                transparent 100%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .counter {
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 8px 15px;
-            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 10px 20px;
+            border-radius: 8px;
             margin: 0 5px;
             border: 1px solid var(--neon-green);
             font-weight: bold;
             text-shadow: 0 0 5px var(--neon-green);
+            font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .counter::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, 
+                transparent 0%, 
+                rgba(0, 255, 0, 0.1) 50%, 
+                transparent 100%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
         }
 
         #game-message {
@@ -119,7 +221,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.95);
             padding: 30px;
             border-radius: 10px;
             text-align: center;
@@ -129,12 +231,44 @@
             font-size: 1.5em;
             text-transform: uppercase;
             letter-spacing: 0.1em;
+            backdrop-filter: blur(10px);
+            animation: messageAppear 0.3s ease-out;
+        }
+
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
         }
 
         #mode-selector {
             margin-bottom: 30px;
             display: flex;
             gap: 15px;
+            position: relative;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 100%;
+            padding: 0 20px;
+        }
+
+        #mode-selector::before {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                var(--neon-green) 50%, 
+                transparent 100%);
         }
 
         button {
@@ -149,12 +283,32 @@
             letter-spacing: 0.1em;
             position: relative;
             overflow: hidden;
+            border-radius: 5px;
+        }
+
+        button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0, 255, 0, 0.2) 50%, 
+                transparent 100%);
+            transition: 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
         }
 
         button:hover {
             background-color: var(--neon-green);
             color: var(--black);
             box-shadow: 0 0 15px var(--neon-green);
+            transform: translateY(-2px);
         }
 
         button.active {
@@ -164,56 +318,160 @@
         }
 
         #marketplace {
-            position: absolute;
-            right: 10px;
+            position: fixed;
+            right: 20px;
             top: 50%;
             transform: translateY(-50%);
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.95);
             padding: 20px;
             border-radius: 10px;
-            display: none;
             border: 2px solid var(--neon-green);
             box-shadow: 0 0 20px var(--neon-green);
-            min-width: 250px;
+            width: 300px;
+            max-width: 90vw;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
         }
 
-        #marketplace h3 {
-            text-align: center;
-            margin-top: 0;
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50%) translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(-50%) translateX(0);
+            }
+        }
+
+        .marketplace-section {
             margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--neon-green);
-            text-shadow: 0 0 10px var(--neon-green);
+            border-bottom: 1px solid var(--neon-green);
+            padding-bottom: 15px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .marketplace-item {
             display: flex;
             align-items: center;
-            margin: 10px 0;
             padding: 10px;
-            cursor: pointer;
+            margin: 5px 0;
+            background-color: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--neon-green);
             border-radius: 5px;
+            cursor: pointer;
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .marketplace-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 255, 0, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .marketplace-item:hover::before {
+            left: 100%;
         }
 
         .marketplace-item:hover {
             background-color: rgba(0, 255, 0, 0.1);
-            transform: translateX(-5px);
-            box-shadow: 0 0 10px var(--neon-green);
+            transform: translateX(5px);
+            box-shadow: 0 0 15px var(--neon-green);
         }
 
-        .marketplace-item img {
-            width: 30px;
-            height: 30px;
-            margin-right: 15px;
-            filter: drop-shadow(0 0 5px var(--neon-green));
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            margin-left: 15px;
         }
 
-        .marketplace-item span {
+        .item-name {
+            font-weight: bold;
             color: var(--neon-green);
+            margin-bottom: 5px;
             text-shadow: 0 0 5px var(--neon-green);
+        }
+
+        .item-cost {
+            color: #ffff00;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            text-shadow: 0 0 5px #ffff00;
+        }
+
+        .item-description {
+            color: #ffffff;
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+
+        /* Add a notification for when marketplace is available */
+        .marketplace-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            display: none;
+            z-index: 1000;
+            animation: fadeInOut 2s infinite;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Add scrollbar styling */
+        #marketplace::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #marketplace::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        #marketplace::-webkit-scrollbar-thumb {
+            background: var(--neon-green);
+            border-radius: 4px;
+        }
+
+        #marketplace::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-green);
         }
 
         /* Add scanline effect */
@@ -232,128 +490,641 @@
                 transparent 2px
             );
             pointer-events: none;
+            animation: scanline 10s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* Add corner decorations */
+        #game-container::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 2px solid var(--neon-green);
+            border-radius: 12px;
+            pointer-events: none;
+            animation: borderGlow 2s infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { box-shadow: 0 0 20px var(--neon-green); }
+            50% { box-shadow: 0 0 30px var(--neon-green); }
+        }
+
+        #game-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 100%;
+            padding: 0 20px;
+        }
+
+        .control-btn {
+            background-color: var(--dark-gray);
+            color: var(--neon-green);
+            border: 2px solid var(--neon-green);
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .control-btn:hover {
+            background-color: var(--neon-green);
+            color: var(--black);
+            box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        .control-btn.active {
+            display: block;
+        }
+
+        #teleport-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--neon-green);
+            display: none;
+        }
+
+        #coins-display {
+            position: absolute;
+            top: 10px;
+            right: 120px;
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--neon-green);
+            display: none;
+        }
+
+        .alert-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 0, 0, 0.3);
+            pointer-events: none;
+            display: none;
+            animation: alertPulse 1s infinite;
+        }
+
+        @keyframes alertPulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.5; }
+            100% { opacity: 0.3; }
+        }
+
+        .safe-zone {
+            position: absolute;
+            border: 2px dashed var(--neon-green);
+            background-color: rgba(0, 255, 0, 0.1);
+            pointer-events: none;
+        }
+
+        .power-up-indicator {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 1px solid var(--neon-green);
+            display: none;
+            text-align: center;
+        }
+
+        .power-up-indicator.active {
+            display: block;
+            animation: fadeInOut 2s infinite;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .power-up-panel {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid var(--neon-green);
+            box-shadow: 0 0 20px var(--neon-green);
+            min-width: 200px;
+            max-width: 90vw;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .power-up-panel h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .power-up-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .power-up-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .power-up-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--dark-gray);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            border-radius: 5px;
+        }
+
+        .power-up-btn:hover {
+            background-color: var(--neon-green);
+            color: var(--black);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .power-up-btn.active {
+            background-color: var(--neon-green);
+            color: var(--black);
+            box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        .power-up-icon {
+            font-size: 1.5em;
+        }
+
+        .power-up-name {
+            font-size: 0.8em;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .power-up-status {
+            width: 100%;
+            height: 3px;
+            background-color: var(--dark-gray);
+            margin-top: 5px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .power-up-status.active {
+            background-color: var(--neon-green);
+            animation: powerUpTimer 5s linear;
+        }
+
+        @keyframes powerUpTimer {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* Power-up specific colors */
+        .power-up-btn.health { border-color: #00ff00; }
+        .power-up-btn.invisibility { border-color: #0000ff; }
+        .power-up-btn.speed { border-color: #ffff00; }
+        .power-up-btn.shield { border-color: #ff00ff; }
+        .power-up-btn.damage { border-color: #ff0000; }
+        .power-up-btn.time { border-color: #00ffff; }
+
+        /* Add safe zone indicator styles */
+        #safe-zone-indicator {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 2px solid #00ff00;
+            font-weight: bold;
+            display: none;
+            z-index: 1000;
+            text-shadow: 0 0 5px #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        #safe-zone-indicator.active {
+            display: block;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Add media queries for better responsiveness */
+        @media (max-width: 768px) {
+            #game-ui {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .health-bar {
+                width: 100%;
+            }
+
+            .counter {
+                width: 100%;
+                text-align: center;
+            }
+
+            #marketplace {
+                width: 90vw;
+                right: 5vw;
+            }
+
+            .power-up-panel {
+                width: 90vw;
+                left: 5vw;
+            }
+        }
+
+        /* Add these styles in the existing <style> section */
+        .marketplace-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--neon-green);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            text-shadow: 0 0 5px var(--neon-green);
+        }
+
+        .marketplace-close-btn:hover {
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-green);
+            transform: scale(1.1);
+        }
+
+        .marketplace-close-btn::before {
+            content: "×";
         }
     </style>
 </head>
 <body>
-    <h1>Cyberscape</h1>
+            <h1>Cyberscape</h1>
     
     <div id="mode-selector">
         <button onclick="setGameMode('normal')" class="active">Normal Mode</button>
         <button onclick="setGameMode('hacker')">Hacker Mode</button>
         <button onclick="setGameMode('hacker++')">Hacker++ Mode</button>
-    </div>
+                    </div>
 
     <div id="game-container">
         <canvas id="game-canvas"></canvas>
         
         <div id="game-ui">
-            <div class="health-bar">
+                    <div class="health-bar">
                 <div id="system-health" class="health-bar-fill" style="width: 100%"></div>
-            </div>
+                    </div>
             
             <div class="counter">
                 Keys: <span id="keys-count">0</span>
-            </div>
+                </div>
             
             <div class="counter">
                 Shards: <span id="shards-count">0</span>
-            </div>
+                </div>
             
             <div class="health-bar">
                 <div id="player-health" class="health-bar-fill" style="width: 100%"></div>
             </div>
             
-            <button id="pause-btn">Pause</button>
-            <button id="reset-btn">Reset</button>
+                <button id="pause-btn">Pause</button>
+                <button id="reset-btn">Reset</button>
+        </div>
+
+        <div id="coins-display">
+            Coins: <span id="coins-count">0</span>
+        </div>
+
+        <div id="teleport-display">
+            Teleport Hubs: <span id="teleport-count">0</span>
+        </div>
+
+        <div id="game-controls">
+            <button id="teleport-btn" class="control-btn" onclick="placeTeleportHub()">Place Teleport Hub (Space)</button>
+            <button id="mine-btn" class="control-btn" onclick="placeDataMine()">Place Data Mine (M)</button>
         </div>
         
         <div id="game-message"></div>
         
-        <div id="marketplace">
-            <h3>Marketplace</h3>
-            <div class="marketplace-item" onclick="buyItem('health_pack')">
-                <img src="health_pack.png" alt="Health Pack">
-                <span>Health Pack (5 Shards)</span>
+        <div class="alert-overlay" id="alert-overlay"></div>
+        
+        <div class="power-up-indicator" id="power-up-indicator"></div>
+        
+        <div class="marketplace-notification" id="marketplace-notification">
+            Marketplace Available! Press 'M' to open
+        </div>
+    </div>
+
+    <div id="marketplace">
+        <button class="marketplace-close-btn" onclick="closeMarketplace()"></button>
+        <h3>Marketplace</h3>
+        
+        <div class="marketplace-section">
+            <h4>Weapons</h4>
+            <div class="marketplace-item" data-category="WEAPONS" data-item="PISTOL">
+                <div class="item-info">
+                    <span class="item-name">Pistol</span>
+                    <span class="item-cost">1 Shard</span>
+                    <span class="item-description">Basic weapon with moderate damage (5 bot kills)</span>
+                </div>
             </div>
-            <div class="marketplace-item" onclick="buyItem('invisibility')">
-                <img src="invisibility.png" alt="Invisibility">
-                <span>Invisibility (10 Shards)</span>
+            <div class="marketplace-item" data-category="WEAPONS" data-item="RIFLE">
+                <div class="item-info">
+                    <span class="item-name">Rifle</span>
+                    <span class="item-cost">2 Shards</span>
+                    <span class="item-description">High damage, medium fire rate (7 bot kills)</span>
+                </div>
             </div>
-            <div class="marketplace-item" onclick="buyItem('speed_boost')">
-                <img src="speed_boost.png" alt="Speed Boost">
-                <span>Speed Boost (8 Shards)</span>
+            <div class="marketplace-item" data-category="WEAPONS" data-item="SHOTGUN">
+                <div class="item-info">
+                    <span class="item-name">Shotgun</span>
+                    <span class="item-cost">3 Shards</span>
+                    <span class="item-description">High damage, low fire rate, spread shot (9 bot kills)</span>
+                </div>
             </div>
-            <div class="marketplace-item" onclick="buyItem('data_mine')">
-                <img src="data_mine.png" alt="Data Mine">
-                <span>Data Mine (15 Shards)</span>
+            <div class="marketplace-item" data-category="WEAPONS" data-item="SNIPER">
+                <div class="item-info">
+                    <span class="item-name">Sniper</span>
+                    <span class="item-cost">4 Shards</span>
+                    <span class="item-description">Extreme damage, very low fire rate (15 bot kills)</span>
+                </div>
             </div>
-            <div class="marketplace-item" onclick="buyItem('teleport_hub')">
-                <img src="teleport_hub.png" alt="Teleport Hub">
-                <span>Teleport Hub (20 Shards)</span>
+        </div>
+
+        <div class="marketplace-section">
+            <h4>Upgrades</h4>
+            <div class="marketplace-item" data-category="UPGRADES" data-item="SPEED_BOOST">
+                <div class="item-info">
+                    <span class="item-name">Speed Boost</span>
+                    <span class="item-cost">1 Shard</span>
+                    <span class="item-description">50% movement speed increase (10s)</span>
+                </div>
+            </div>
+            <div class="marketplace-item" data-category="UPGRADES" data-item="FIRE_RATE">
+                <div class="item-info">
+                    <span class="item-name">Fire Rate</span>
+                    <span class="item-cost">2 Shards</span>
+                    <span class="item-description">50% increased fire rate (10s)</span>
+                </div>
+            </div>
+            <div class="marketplace-item" data-category="UPGRADES" data-item="DAMAGE_BOOST">
+                <div class="item-info">
+                    <span class="item-name">Damage Boost</span>
+                    <span class="item-cost">3 Shards</span>
+                    <span class="item-description">Double damage output (10s)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="marketplace-section">
+            <h4>Utilities</h4>
+            <div class="marketplace-item" data-category="UTILITIES" data-item="HEALTH_PACK">
+                <div class="item-info">
+                    <span class="item-name">Health Pack</span>
+                    <span class="item-cost">1 Shard</span>
+                    <span class="item-description">Restore 30 health points</span>
+                </div>
+            </div>
+            <div class="marketplace-item" data-category="UTILITIES" data-item="SHIELD">
+                <div class="item-info">
+                    <span class="item-name">Shield</span>
+                    <span class="item-cost">2 Shards</span>
+                    <span class="item-description">Temporary shield that absorbs damage (5s)</span>
+                </div>
+            </div>
+            <div class="marketplace-item" data-category="UTILITIES" data-item="INVISIBILITY">
+                <div class="item-info">
+                    <span class="item-name">Invisibility</span>
+                    <span class="item-cost">3 Shards</span>
+                    <span class="item-description">Become invisible to enemies (5s)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="marketplace-section">
+            <h4>Data Mines</h4>
+            <div class="marketplace-item" data-category="MINES" data-item="BASIC_MINE">
+                <div class="item-info">
+                    <span class="item-name">Basic Data Mine</span>
+                    <span class="item-cost">1 Shard</span>
+                    <span class="item-description">Produces 1 shard per minute, max 5 shards</span>
+                </div>
+            </div>
+            <div class="marketplace-item" data-category="MINES" data-item="ADVANCED_MINE">
+                <div class="item-info">
+                    <span class="item-name">Advanced Data Mine</span>
+                    <span class="item-cost">2 Shards</span>
+                    <span class="item-description">Produces 2 shards per minute, max 10 shards</span>
+                </div>
+            </div>
+            <div class="marketplace-item" data-category="MINES" data-item="ELITE_MINE">
+                <div class="item-info">
+                    <span class="item-name">Elite Data Mine</span>
+                    <span class="item-cost">3 Shards</span>
+                    <span class="item-description">Produces 3 shards per minute, max 15 shards</span>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Add safe zone indicator element -->
+    <div id="safe-zone-indicator"></div>
+
     <script src="game.js"></script>
     <script>
-        // Marketplace functions
-        function toggleMarketplace() {
+        function closeMarketplace() {
             const marketplace = document.getElementById('marketplace');
-            marketplace.style.display = marketplace.style.display === 'none' ? 'block' : 'none';
+            marketplace.style.display = 'none';
+            gamePaused = false;
+            document.getElementById('pause-btn').textContent = 'Pause';
+            if (marketplaceLocation) {
+                marketplaceLocation.close();
+            }
         }
 
-        function buyItem(item) {
-            const costs = {
-                health_pack: 5,
-                invisibility: 10,
-                speed_boost: 8,
-                data_mine: 15,
-                teleport_hub: 20
-            };
-
-            if (collectedShards >= costs[item]) {
-                collectedShards -= costs[item];
-                updateShardsCount();
-
-                switch(item) {
-                    case 'health_pack':
-                        playerHealth = Math.min(100, playerHealth + 30);
-                        updatePlayerHealth();
-                        break;
-                    case 'invisibility':
-                        isInvisible = true;
-                        if (invisibilityTimer) clearTimeout(invisibilityTimer);
-                        invisibilityTimer = setTimeout(() => {
-                            isInvisible = false;
-                        }, 5000);
-                        break;
-                    case 'speed_boost':
-                        const originalSpeed = player.speed;
-                        player.speed *= 1.5;
-                        setTimeout(() => {
-                            player.speed = originalSpeed;
-                        }, 5000);
-                        break;
-                    case 'data_mine':
-                        const pos = findWalkablePosition();
-                        dataMines.push(new DataMine(pos.x, pos.y));
-                        break;
-                    case 'teleport_hub':
-                        const hubPos = findWalkablePosition();
-                        const label = `HUB${teleportHubs.length + 1}`;
-                        teleportHubs.push(new TeleportHub(hubPos.x, hubPos.y, label));
-                        break;
+        function toggleMarketplace() {
+            const marketplace = document.getElementById('marketplace');
+            if (marketplaceLocation && marketplaceLocation.isPlayerNearby() && 
+                (currentGameMode === GAME_MODES.HACKER || currentGameMode === GAME_MODES.HACKER_PLUS)) {
+                if (marketplace.style.display === 'none' || !marketplace.style.display) {
+                    marketplace.style.display = 'block';
+                    gamePaused = true;
+                    document.getElementById('pause-btn').textContent = 'Resume';
+                } else {
+                    closeMarketplace();
                 }
             }
         }
 
-        // Add keyboard shortcut for marketplace
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'm') {
-                toggleMarketplace();
-            }
+        // Add click handlers for marketplace items
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.marketplace-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    const itemName = this.dataset.item;
+                    buyItem(category, itemName);
+                });
+            });
         });
+
+        function buyItem(category, item) {
+            const itemData = MARKETPLACE_ITEMS[category][item];
+            console.log('Attempting to buy:', itemData.name, 'Cost:', itemData.cost, 'Current shards:', collectedShards);
+            
+            if (collectedShards >= itemData.cost) {
+                collectedShards -= itemData.cost;
+                updateShardsCount();
+
+                switch(category) {
+                    case 'WEAPONS':
+                        currentWeapon = itemData;
+                        weaponKillsRemaining = itemData.maxKills;
+                        showPowerUpIndicator(`${itemData.name} equipped! (${weaponKillsRemaining} kills remaining)`);
+                        break;
+                    case 'UPGRADES':
+                        const upgrade = {
+                            type: item,
+                            effect: itemData.effect,
+                            endTime: Date.now() + itemData.duration * 1000
+                        };
+                        activeUpgrades.push(upgrade);
+                        
+                        // Apply upgrade effects
+                        if (item === 'SPEED_BOOST') {
+                            const originalSpeed = player.speed;
+                            player.speed *= itemData.effect;
+                            setTimeout(() => {
+                                player.speed = originalSpeed;
+                                showPowerUpIndicator('Speed Boost ended!');
+                            }, itemData.duration * 1000);
+                        } else if (item === 'FIRE_RATE') {
+                            const originalFireRate = currentWeapon.fireRate;
+                            currentWeapon.fireRate *= itemData.effect;
+                            setTimeout(() => {
+                                currentWeapon.fireRate = originalFireRate;
+                                showPowerUpIndicator('Fire Rate boost ended!');
+                            }, itemData.duration * 1000);
+                        } else if (item === 'DAMAGE_BOOST') {
+                            const originalDamage = currentWeapon.damage;
+                            currentWeapon.damage *= itemData.effect;
+                            setTimeout(() => {
+                                currentWeapon.damage = originalDamage;
+                                showPowerUpIndicator('Damage Boost ended!');
+                            }, itemData.duration * 1000);
+                        }
+                        
+                        showPowerUpIndicator(`${itemData.name} activated!`);
+                        break;
+                    case 'UTILITIES':
+                        switch(item) {
+                            case 'HEALTH_PACK':
+                                playerHealth = Math.min(100, playerHealth + itemData.effect);
+                                updatePlayerHealth();
+                                showPowerUpIndicator('Health restored!');
+                                break;
+                            case 'SHIELD':
+                                activeShield = true;
+                                shieldHealth = itemData.effect;
+                                setTimeout(() => {
+                                    activeShield = false;
+                                    shieldHealth = 0;
+                                    showPowerUpIndicator('Shield depleted!');
+                                }, itemData.duration * 1000);
+                                showPowerUpIndicator('Shield activated!');
+                                break;
+                            case 'INVISIBILITY':
+                                playerInvisible = true;
+                                setTimeout(() => {
+                                    playerInvisible = false;
+                                    showPowerUpIndicator('Invisibility ended!');
+                                }, itemData.duration * 1000);
+                                showPowerUpIndicator('Invisibility activated!');
+                                break;
+                        }
+                        break;
+                    case 'MINES':
+                        const minePos = findWalkablePosition();
+                        const mine = new DataMine(minePos.x, minePos.y);
+                        mine.productionRate = itemData.productionRate;
+                        mine.maxCapacity = itemData.maxCapacity;
+                        dataMines.push(mine);
+                        showPowerUpIndicator(`${itemData.name} placed!`);
+                        break;
+                }
+            } else {
+                showPowerUpIndicator(`Not enough shards! Need ${itemData.cost} shards.`);
+            }
+        }
+
+        function showPowerUpIndicator(message) {
+            const indicator = document.getElementById('power-up-indicator');
+            indicator.textContent = message;
+            indicator.classList.add('active');
+            setTimeout(() => {
+                indicator.classList.remove('active');
+            }, 3000);
+        }
+
+        function showAlert() {
+            const overlay = document.getElementById('alert-overlay');
+            overlay.style.display = 'block';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 10000);
+        }
 
         // Update active button state
         document.querySelectorAll('#mode-selector button').forEach(button => {
@@ -364,6 +1135,36 @@
                 this.classList.add('active');
             });
         });
+
+        // Add keyboard shortcut for marketplace
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'm' && 
+                (currentGameMode === GAME_MODES.HACKER || currentGameMode === GAME_MODES.HACKER_PLUS) &&
+                marketplaceLocation && 
+                marketplaceLocation.isPlayerNearby()) {
+                toggleMarketplace();
+            }
+        });
+
+        // Show marketplace notification
+        function showMarketplaceNotification() {
+            const notification = document.getElementById('marketplace-notification');
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Update marketplace interaction
+        function updateMarketplaceInteraction() {
+            if (marketplaceLocation && marketplaceLocation.isPlayerNearby() && 
+                (currentGameMode === GAME_MODES.HACKER || currentGameMode === GAME_MODES.HACKER_PLUS)) {
+                showMarketplaceNotification();
+            }
+        }
+
+        // Add this to your game loop or update function
+        setInterval(updateMarketplaceInteraction, 1000);
     </script>
 </body>
 </html>
