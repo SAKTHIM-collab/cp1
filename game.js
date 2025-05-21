@@ -635,8 +635,8 @@ class Bot {
         const dy = player.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // Only chase if player is not in safe zone
-        if ((distance < this.detectionRange || cityWideAlert) && !safeZones.some(zone => zone.isPlayerInZone())) {
+        // Only chase if player is not invisible and not in safe zone
+        if ((distance < this.detectionRange || cityWideAlert) && !playerInvisible && !safeZones.some(zone => zone.isPlayerInZone())) {
             this.isChasing = true;
             this.target = player;
         } else {
@@ -650,8 +650,8 @@ class Bot {
             this.x += Math.cos(angle) * this.speed;
             this.y += Math.sin(angle) * this.speed;
 
-            // Shoot if in range
-            if (distance < 100 && this.shootCooldown <= 0) {
+            // Shoot if in range and player is not invisible
+            if (distance < 100 && this.shootCooldown <= 0 && !playerInvisible) {
                 this.shoot();
                 this.shootCooldown = 60; // 1 second cooldown at 60 FPS
             }
@@ -695,8 +695,8 @@ class Bot {
         ctx.fillStyle = this.getBotColor();
         ctx.fillRect(this.x - viewportX, this.y - viewportY, this.size, this.size);
         
-        // Draw detection range
-        if (this.isChasing) {
+        // Draw detection range only if not chasing invisible player
+        if (this.isChasing && !playerInvisible) {
             ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
             ctx.beginPath();
             ctx.arc(this.x + this.size / 2 - viewportX, this.y + this.size / 2 - viewportY, this.detectionRange, 0, Math.PI * 2);
@@ -2077,7 +2077,12 @@ function buyItem(category, itemName) {
                         break;
                     case 'INVISIBILITY':
                         playerInvisible = true;
-                        showPowerUpIndicator(`👻 Invisibility activated!\nEnemies cannot detect you\nDuration: ${itemData.duration}s`);
+                        // Make all bots stop chasing
+                        bots.forEach(bot => {
+                            bot.isChasing = false;
+                            bot.target = null;
+                        });
+                        showPowerUpIndicator(`👻 Invisibility activated!\nEnemies cannot detect or target you\nDuration: ${itemData.duration}s`);
                         setTimeout(() => {
                             playerInvisible = false;
                             showPowerUpIndicator('Invisibility ended!');
